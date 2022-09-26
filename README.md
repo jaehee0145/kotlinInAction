@@ -65,3 +65,133 @@
 - 자바 코드에서 코틀린 코드를 아무 장치 없이 호출 가능
 - 코틀린은 자바 표준 라이브러리 클래스에 의존
 - 자바와 코틀린 소스 파일이 섞여있어도 컴파일 가능 
+
+---
+## 2장 코틀린 기초
+
+### 2.1 함수와 변수 
+1. Hello, World
+- 함수 선언 fun
+- 파라미터 이름 뒤에 타입
+- 함수를 클래스 안에 넣지 않아도 된다.
+
+2. 함수
+```kotlin
+// 블록이 본문인 함수    
+fun max(a: Int, b: Int): Int {
+        return if (a > b) a else b
+    }
+
+// 식이 본문인 함수
+fun max(a: Int, b: Int): Int  = return if (a > b) a else b
+
+// 반환 타입 생략
+fun max(a: Int, b: Int) = return if (a > b) a else b
+```
+- 식이 본문인 함수의 경우 컴파일러가 함수 본문 식을 통해 함수 반환 타입을 지정 : 타입 추론
+
+
+3. 변수
+- 코틀린에서는 타입 지정을 생략하는 경우가 흔해서 변수 이름을 먼저 쓰고 타입을 명시하거나 생략
+    ```kotlin
+    val question = "It's monday."
+    val answer = 42
+    
+    val answer: Int = 42
+    ```
+
+- 초기화 식을 사용하지 않고 변수를 선언할 때는 타입 명시
+    ```kotlin
+    val answer: Int
+    answer = 42
+    ```
+- 코틀린 변수 키워드 
+  - val (value)
+    - 변경 불가능한 참조를 저장하는 변수
+    - 자바에서 final 변수에 해당 
+  - var (variable)
+    - 변경 가능한 참조를 저장하는 변수
+- 기본적으로 모든 변수를 val로 사용하고 꼭 필요한 경우에만 var로 변경하기
+- val 참조 자체는 불변이지만 참조 객체 내부의 값은 변경 가능
+    ```kotlin
+    val languages = arrayListOf("Java")
+    languages.add("Kotlin")
+    ```
+4. 문자열 템플릿
+- 문자열 안에서 $변수 형태로 사용 가능 
+    ```kotlin
+    fun main(args: Array<String>) {
+        val name = if (args.size > 0) args[0] else "Kotlin"
+        println("Hello, $name!")
+        
+        // {} 사용하면 연산 가능 
+        println("Hello, ${args[0]}!")
+        
+        // 중괄호로 둘러싼 식 안에서 큰 따옴표 사용 가능 
+        println("Hello, ${if (args.size > 0) args[0] else "someone"}!")
+  
+        // 중괄호로 둘러싼 식 안에서도 문자열 템플릿 사용 가능 
+        println("Hello, ${if (s.length > 2) "too short" else "normal string ${s}"}!")
+    }
+    ```
+
+### 2.2 클래스와 프로퍼티
+```java
+/* java */
+public class Person {
+    private final String name;
+    
+    public Person(String name) {
+        this.name = name;
+    }
+    public String getName() {
+        return name;
+    }
+}
+```
+
+```kotlin
+/* kotlin */ 
+class Person(val name: String)
+```
+- 값 객체(value object) :  코드 없이 데이터만 저장하는 클래스
+
+1. 프로퍼티 
+- 클래스라는 개념의 목적: 데이터를 캡슐화하고 캡슐화한 데이터를 다루는 코드를 한 주체 아래 두는 것 
+- 자바에서 프로퍼티 : 필드와 접근자 
+- 코틀린은 프로퍼티를 언어 기본 기능으로 제공
+```kotlin
+class Person(
+  val name: String, // 읽기 전용 프로퍼티 : 비공개 필드, 공개 게터 
+  var isMarried: Boolean // 쓰기 가능 프로퍼티 : 비공개 필드, 공개 게터, 공개 세터 
+)
+```
+
+```java
+/* java */
+Person person = new Person("Tom", true);
+System.out.println(person.getName());
+System.out.println(person.isMarried());
+```
+```kotlin
+/* kotlin */
+val person = Person("Tom", true)
+println(person.name)
+println(person.isMarried)
+```
+
+2. 커스텀 접근자
+
+```kotlin
+class Rectangle(val width: Int, var height: Int) {
+    val isSquare: Boolean
+        get() { // 프로퍼티 게터 선언 
+            return height = width
+        }
+        // 블록 생략 가능 
+        // get() = height = width
+} 
+```
+
+3. 코틀린 소스코드 구조: 디렉토리와 패키지 
+- 여러 클래스를 한 파일에 넣을 수 있고, 파일 이름도 마음대로 

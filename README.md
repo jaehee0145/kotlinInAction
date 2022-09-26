@@ -195,3 +195,16 @@ class Rectangle(val width: Int, var height: Int) {
 
 3. 코틀린 소스코드 구조: 디렉토리와 패키지 
 - 여러 클래스를 한 파일에 넣을 수 있고, 파일 이름도 마음대로 
+
+### 2.3 선택 표현과 처리: enum과 when
+1. enum 클래스 정의 
+```kotlin
+enum class Color(
+  val r: Int, val g: Int, val b: Int
+) {
+    Red(255, 0, 0), 
+    Orange(255, 165, 0);
+  
+    fun rgb() = (r * 256 + g) * 256 + b
+}
+```

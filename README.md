@@ -312,4 +312,49 @@ fun evalWithLogging(e: Expr): Int =
 ```
 
 ### 2.4 대상을 이터레이션: while과 for 루프
-- 2장에서 설명한 코틀린 특성 중 자바와 가장 비슷한 것이 이터레이션 
+- 2장에서 설명한 코틀린 특성 중 자바와 가장 비슷한 것이 이터레이션
+- for는 자바의 for-each 루프에 해당하는 형태만 존재
+
+1. while 루프
+  - while, do-while 루프는 자바와 동일
+
+2. 수에 대한 이터레이션: 범위와 수열
+  - 자바 for 루프 대신 범위(range) : `val oneToTen = 1..10`
+    ```kotlin
+    for (i in 1..100) {
+        print(fizzBuzz(i))
+    }
+    
+    for (i in 100 downTo 1 step 2) {
+        print(fizzBuzz(i))
+    }
+    ```
+    
+3. 맵에 대한 이터레이션
+   - .. 연산자를 문자 타입의 값에도 적용 가능 
+    ```kotlin
+    for (c in 'A'..'F') {
+        ~~
+    }
+    ```
+   
+4. in으로 컬렉션이나 범위의 원소 검사
+```kotlin
+fun isLetter(c: Char) c in 'a'..'z' || c in 'A'..'Z'
+fun isNotDigit(c: Char) c !in '0'.. '9'
+```
+
+- when에서 사용하기 
+```kotlin
+fun recoginze(c: Char) = when (c) {
+    in '0'..'9' -> "It's a digit"
+    in 'a'..'z', in 'A'..'Z' -> "It's a letter"
+    else -> "I don't know"
+} 
+```
+
+### 2.5 코틀린의 예외 처리 
+- 코틀린의 예외 처리는 자바와 비슷하다. 함수는 정상적으로 종료할 수 있지만 오류가 발생하면 예외를 던질 수 있다. 
+
+1. try, catch, finally
+- 자바 코드와 가장 큰 차이는 throw 절이 코드에 없다는 점이다. 

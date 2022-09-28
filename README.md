@@ -203,8 +203,113 @@ enum class Color(
   val r: Int, val g: Int, val b: Int
 ) {
     Red(255, 0, 0), 
-    Orange(255, 165, 0);
+    Orange(255, 165, 0);    // 코틀린에서 유일하게 ; 필수
   
     fun rgb() = (r * 256 + g) * 256 + b
 }
 ```
+
+2. when으로 enum 클래스 다루기 
+- when: 자바의 switch
+```kotlin
+fun getMnemonic(color: Color) = 
+    when (color) {
+        Color.Red -> "Richard"
+        Color.Orange -> "Of"
+    }
+    // 한 분기 안에 여러 값 사용하기 
+    when (color) {
+        Color.Red, Color.Orange -> "first"
+        Color.yellow -> "second"
+    }
+```
+
+3. when과 임의의 객체를 함께 사용
+- 분기 조건에 상수만을 사용할 수 있는 자바 switch와 달리 코틀린 when은 임의의 객체를 허용
+
+```kotlin
+fun mix (c1: Color, c2: Color) = 
+    when (setOf(c1, c2)) {
+        setOf(Red, Yellow) -> Orange
+        setOf(Yellow, Blue) -> Green
+        else -> throw Exception("Unknown color")
+    }
+```
+
+4. 인자 없는 when 사용
+- 불필요한 객체 생성을 막을 수 있다. 
+```kotlin
+fun mixOptimized(c1: Color, c2: Color) = 
+    when {
+      (c1 == Red && c2 == Yellow) ||
+              (c2 == Red && c1 == Yellow) ->
+        Orange
+      (c1 == Yellow && c2 == Blue) ||
+              (c2 == Yellow && c1 == Blue) ->
+        Green
+      else -> throw Exception("Unknown color")
+    }
+```
+
+5. 스마트 캐스트: 타입 검사와 타입 캐스트를 조합
+- kotlin is 는 java instanceOf 
+```kotlin
+fun eval (e: Expr): Int {
+    // 자바 스타일 코드 
+    if (e is Num) { // 타입 확인 후 
+        val n = e as Number // 타입 변환 
+        return n.value
+    }
+    if (e is Sum) {
+        return eval(e.right) + eval(e.left)
+    }
+    throw IllegalArgumentException("Unknown expression")
+}
+```
+
+6. 리팩토링: if를 when으로 변경
+- 코틀린 if는 자바 3항 연산자처럼 값을 만들어 낸다.
+```kotlin
+fun eval (e: Expr): Int =
+    if (e is Num) {
+        e.value
+    } else if (e is Sum) {
+        eval(e.right) + eval(e.left)
+    } else {
+        throw IllegalArgumentException("Unknown expression")
+    }
+```
+- when 사용
+```kotlin
+fun eval (e: Expr): Int =
+    when (e) {
+        is Num ->
+          e.value
+        is Sum ->
+          eval(e.right) + eval(e.left)
+        else ->
+          throw IllegalArgumentException("Unknown expression")
+    }
+```
+
+7. if와 when의 분기에서 블록 사용
+```kotlin
+fun evalWithLogging(e: Expr): Int = 
+    when (e) {
+        is Num -> {
+            println("num: ${e.value}")
+            e.value
+        }
+        is Sum -> {
+          val left = evalWithLogging(e.left)
+          val right = evalWithLogging(e.right)
+          println("sum: $left + $right")
+          left + right
+        }
+      else -> throw IllegalArgumentException("Unknown expression")
+
+    }
+```
+
+### 2.4 대상을 이터레이션: while과 for 루프
+- 2장에서 설명한 코틀린 특성 중 자바와 가장 비슷한 것이 이터레이션 

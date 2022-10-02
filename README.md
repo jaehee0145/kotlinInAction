@@ -382,3 +382,29 @@ fun recoginze(c: Char) = when (c) {
 - 1..5와 같은 식은 범위를 만들어낸다. 범위와 수열은 코틀린에서 같은 문법을 사용하며, for 루프에 대해 같은 추상화를 제공한다. 어떤 값이 범위 안에 들어있거나 들어있지 않은지 검사하기 위해서 in이나 !in을 사용한다.
 - 코틀린 예외 처리는 자바와 비슷하다. 다만 코틀린에서는 함수가 던질 수 있는 예외를 선언하지 않아도 된다.
 
+---
+## 3장 함수 정의와 호출
+- 컬렉션, 문자열, 정규식을 다루기 위한 함수
+- 이름 붙인 인자, 디폴트 파라미터 값, 중위 호출 문법 사용
+- 확장 함수와 확장 프로퍼티를 사용해 자바 라이브러리 적용
+- 최상위 및 로컬 함수와 프로퍼티를 사용해 코드 구조화 
+
+### 3.1 코틀린에서 컬렉션 만들기
+
+```kotlin
+val set = hashSetOf(1, 7, 77)
+val list = arrayListOf(1, 3, 55)
+val map = hashMapOf(1 to "one", 7 to "seven", 45 to "forty-five")
+```
+- 코틀린은 자체 컬렉션을 제공하지 않고 표준 자바 컬렉션을 활용한다.
+  - 자바 코드와의 상호작용을 위해
+  - 하지만 더 많은 기능을 쓸 수 있다.
+```kotlin
+val strings = listOf("first", "second", "third")
+println(strings.last())
+//third
+
+val numbers = setOf(1, 12, 44)
+println(numbers.max)
+//14
+```

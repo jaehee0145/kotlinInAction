@@ -408,3 +408,88 @@ val numbers = setOf(1, 12, 44)
 println(numbers.max)
 //14
 ```
+
+### 3.2 함수를 호출하기 쉽게 만들기
+```kotlin
+// 함수 선언을 간단하게 만들 수 있게 코틀린이 지원하는 여러 기능을 사용하지 않고 직접 구현
+fun <T> joinToString (
+    collection: Collection<T>,
+    separator: String,
+    prefix: String,
+    postfix: String
+): String {
+    val result = StringBuilder(prefix)
+    for((index, element) in collection.withIndex()) {
+        if (index > 0) result.append(separator)
+        result.append(element)
+    }
+    result.append(postfix)
+    return result.toString()
+}
+
+val list = listOf(1, 2, 3)
+println(joinToString(list, "; ", "(", ")"))
+```
+
+1. 이름 붙인 인자
+- 함수 호출 부분의 가독성을 개선해보자  
+- 위의 예시에서 인자로 전달한 각 문자열이 어떤 역할을 하는지 구분이 어렵다.  
+  `joinToString(list, "; ", "(", ")")`
+- 코틀린에서는 함수에 전달하는 인자의 이름을 명시할 수 있다.  
+  `joinToString(collection, separator = " ", prefix = " ", postfix = "."`
+
+2. 디폴트 파라미터 값
+- 함수 선언에서 파라미터의 디폴트 값을 지정할 수 있다. 
+```kotlin
+fun <T> joinToString (
+    collection: Collection<T>,
+    separator: String = ", ",
+    prefix: String = "",
+    postfix: String = ""
+): String
+
+joinToString(list)
+joinToString(list, "; ") // 일부만 생략하면 뒷부분 인자들이 생략됨
+```
+
+3. 정적인 유틸리티 클래스 없애기: 최상위 함수와 프로퍼티 
+- 자바에서는 메서드가 클래스 내에 포함되어야 하므로 정적 메서드를 모아두는 역할만 담당하며, 특별한 상태나 인스턴스 메서드는 없는 클래스가 생겨난다. 
+- 코틀린에서는 함수를 소스 파일 최상위 수준, 모든 다른 클래스의 밖에 위치시키면 된다. 
+- JVM이 클래스 안에 들어있는 코드만을 실행할 수 있기 때문에 컴파일러가 파일명에 해당하는 클래스를 새로 정의해준다.
+
+- join.kt 파일
+    ```kotlin
+    package strings
+    fun joinToString(...): String {...}
+    ```
+  
+    ```java
+    /* join.kt를 컴파일한 결과를 자바 코드로 써보면 아래와 같다. */
+    package strings;
+    public class JoinKt {
+        public static String joinToString(...) {...}
+    }
+    ```
+- 최상위 프로퍼티: 함수와 마찬가지로 프로퍼티도 파일 최상위 수준에서 선언 가능 
+
+### 3.3 메서드를 다른 클래스에 추가: 확장 함수와 확장 프로퍼티 
+- 확장함수: 어떤 클래스의 멤버 메서드인 것처럼 호출할 수 있지만 그 클래스의 밖에 선언된 함수
+  - 수신 객체 타입: 이 함수가 확장할 클래스의 이름
+  - 수신 객체: 확장 함수가 호촐되는 대상이 되는 값(객체)
+```kotlin
+fun String.lastChar(): Char = this.get(this.length - 1)
+    // 수신 객체 타입           // 수신 객체 
+
+println("Kotlin".lastChar())
+```
+- String 클래스에 새로운 메서드를 추가하는 것과 같다. 심지어 String이 자바나 코틀린 등의 언어 중 어떤 것으로 작성됐는가도 중요하지 않다.
+- 일반 메서드의 본문에서 this를 사용할 때와 마찬가지로 확장 함수 본문에도 this를 쓸 수 있다. (생략도 가능)
+
+```kotlin
+fun String.lastChar(): Char = get(length - 1)
+```
+
+- 확장함수 안에서는 클래스 내부에서만 사용할 수 있는 private 멤버나 protected 멤버를 사용할 수 없다.
+
+1. 임포트와 확장 함수
+- 확장 함수를 사용하기 위해서는 임포트해야 한다. 

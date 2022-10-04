@@ -493,3 +493,29 @@ fun String.lastChar(): Char = get(length - 1)
 
 1. 임포트와 확장 함수
 - 확장 함수를 사용하기 위해서는 임포트해야 한다. 
+```kotlin
+import strings.lastChar
+val c = "Kotlin".lastChar()
+
+// *를 사용한 임포트
+import strings.*
+val c = "Kotlin".lastChar()
+
+// as를 사용한 임포트
+import string.lastChar as last
+val c = "Kotlin".last()
+```
+- 한 파일 안에서 다른 여러 패키지에 속해있는 이름이 같은 함수를 가져와 사용해야 하는 경우 이름을 바꿔서 임포트하면 충돌을 막을 수 있다. 
+- ?? `물론 일반적인 클래스나 함수라면 그 전체 이름을 써도 된다. 하지만 코틀린 문법상 확장 함수는 반드시 짧은 이름을 써야 한다.`
+
+2. 자바에서 확장 함수 호출 
+- 내부적으로 확장 함수는 수신 객체를 첫번째 인자로 받는 정적 메서드다.
+
+```Java
+// StringUtil.kt 파일에 정의된 확장 함수
+import string.StringUtilKt
+char c = StringUtilKt.lastChar("Java");
+```
+
+
+3. 확장 함수로 유틸리티 함수 정의 

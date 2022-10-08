@@ -519,3 +519,122 @@ char c = StringUtilKt.lastChar("Java");
 
 
 3. 확장 함수로 유틸리티 함수 정의 
+```kotlin
+fun <T> Collection<T>.joinToString (     // Collection<T>에 대한 확장 함수를 선언한다.
+    separator: String= ", ",    // default 값 지정
+    prefix: String = "",
+    postfix: Stirng = ""
+): String {
+    val result = StringBuilder(prefix)
+    for ((index, element) in this.withIndex()) {
+        if (index > 0) result.append(separator)
+        result.append(element)
+    }
+    result.append(postfix)
+    return result.toString()
+}
+>>> val list = listOf(1, 2, 3)
+>>> println(list.joinToString(separator= "; ", prefix = "(", postfix = ")"))
+>>> (1; 2; 3)
+```
+
+- 확장 함수는 정적 메서드 호출에 대한 문법적인 편의(syntactic sugar)일 뿐이다. 클래스가 아닌 더 구체적인 타입을 수신 객체 타입으로 지정할 수도 있다.
+
+```kotlin
+// 문자열의 컬렉션에 대해서만 호출할 수 있는 join 함수
+fun Collection<String>.joinToString (     // Collection<T>에 대한 확장 함수를 선언한다.
+separator: String= ", ",    // default 값 지정
+prefix: String = "",
+postfix: Stirng = ""
+) = joinToString(separator, prefix, postfix)
+```
+
+4. 확장 함수는 오버라이드 할 수 없다. 
+- 코틀린의 메서드 오버라이드는 일반적인 객체지향의 메서드 오버라이드와 마찬가지
+- 하지만 확장 함수는 오버라이드 할 수 없다. 
+
+```kotlin
+// View와 하위 클래스인 Button 
+open class View {     // open : 부모 클래스에 붙이는 키워드
+    open fun click() = println("view clicked")
+}
+
+class Button: View() {
+    override fun click() = println("button clicked")
+}
+
+>>> val view: View = Button()
+>>> view.click()
+button clicked
+```
+
+- 확장 함수는 클래스 밖에 선언된다. 
+이름과 파라미터가 완전히 같은 확장 함수를 기반 클래스와 하위 클래스에 대해 정의해도 
+실제로는 확장 함수를 호출할 때 수신 객체로 지정한 변수의 정적 타입에 의해 어떤 확장 함수가 호출될지 결정되지, 그 변수에 저장된 객체의 동적인 타입에 의해 확장 함수가 결정되지 않는다. ??
+
+```kotlin
+fun View.showOff() = println("view")
+fun Button.showOff() = println("button")
+
+>>> val view: View = Button()
+>>> view.showOff()
+view
+```
+- view가 가리키는 객체의 실제 타입이 Button이지만 view의 타입이 View이기 때문에 View 확장 함수가 호출된다. 
+- 확장 함수를 첫번째 인자가 수신 객체인 정적 자바 메서드로 컴파일한다는 사실을 기억하자!
+```java
+>>>View view = new Button();
+>>>ExtensionsKt.showOff(view);  // showOff 함수를 extensions.kt파일에 정의한 경우  
+view 
+```
+
+- 함수 이름과 시그니처가 같을 때 우선 순위 : 멤버 함수 > 확장 함수 
+
+5. 확장 프로퍼티 
+- 확장 프로퍼티를 사용하면 기존 클래스 객체에 대한 프로퍼티 형식의 구문으로 사용할 수 있는 API를 추가할 수 있다. 
+
+```kotlin
+// 앞에서 정의한 확장 함수 
+fun String.lastChar(): Char = this.get(this.length - 1)
+    // 수신 객체 타입           // 수신 객체 
+
+>>> println("Kotlin".lastChar())
+
+// 확장 프로퍼티 
+val String.lastChar: Char
+    get() = get(length - 1)
+```
+- 확장 프로퍼티도 일반적인 프로퍼티와 같은데 수신 객체 클래스가 추가된 것
+- 뒷받침하는 필드(프로퍼티 값을 저장하는 필드)가 없어서 기본 게터 구현을 제공할 수 없으므로 최소한 게터는 꼭 정의해야 한다.
+- 마찬가지로 초기화 코드에서 계산한 값을 담을 장소가 없으므로 초기화 코드도 쓸 수 없다. 
+
+- StringBuilder에 같은 프로퍼티를 정의한다면 StringBuilder의 맨 마지막 문자는 변경 가능하므로 프로퍼티를 var로 만들 수 있다. 
+```kotlin
+var StringBuilder.lastChar: Char
+    get() = get(length -1)
+    set(value: Char) {
+        this.setCharAt(length - 1, value)
+    }
+```
+
+- 확장 프로퍼티를 사용하는 방법은 멤버 프로퍼티를 사용하는 방법과 같다. 
+
+```kotlin
+>>> println("Kotlin".lastChar)
+n
+
+>>> val sb = StringBuilder("Kotlin?")
+>>> sb.lastChar = "!"
+>>> println(sb)
+Kotlin!
+```
+
+
+
+
+
+
+
+
+
+

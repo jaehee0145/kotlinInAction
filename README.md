@@ -649,6 +649,61 @@ Kotlin!
 로컬 함수와 확장
 
 
+## 4장 클래스, 객체, 인터페이스
+- 클래스와 인터페이스 
+- 뻔하지 않은 생성자와 프로퍼티 
+- 데이터 클래스 
+- 클래스 위임
+- object 키워드 사용
+
+### 4.1 클래스 계층 정의 
+#### 1. 코틀린 인터페이스 
+- 코틀린 인터페이스는 자바 8 인터페이스와 비슷하다. 
+코틀린 인터페이스 안에는 추상 메서드뿐 아니라 구현이 있는 메서드도 정의할 수 있다. (자바8 디폴트 메서드와 비슷)
+
+```kotlin
+interface Clickable {
+    fun click()
+}
+
+class Button : Clickable {
+    override fun click() {
+        TODO("Not yet implemented")
+    }
+}
+```
+- 코틀린에서는 클래스 이름 뒤에 콜론을 붙이는 것으로 클래스 확장과 인터페이스 구현을 모두 처리한다.
+자바와 마찬가지로 인터페이스는 제한 없이 구현, 클래스는 하나만 확장할 수 있다. 
+- 자바와 달리 override 변경자 필수 
+- 인터페이스 메서드도 디폴트 구현을 제공할 수 있다. 자바8과 다르게 default 키워드가 필요 없다. 
+
+```kotlin
+interface Clickable {
+    fun click() // 일반 메서드 선언
+    fun showOff() = println("디폴트 구현") // 디폴트 구현 메서드
+}
+```
+- 여러 개의 인터페이스를 구현할때 메서드 시그니처가 동일한 디폴트 메서드가 중복으로 있으면 하위 클래스에 override 하게 컴파일러 오류가 발생한다.
+
+```kotlin
+class Button : Clickable, Focusable {
+    override fun click() = println("I was clicked")
+    override fun showOff() {
+        super<Clickable>.showOff() // super 키워드 사용 (자바: Clickable.super.showOff()
+        super<Focusable>.showOff()
+    }
+}
+```
+
+
+
+
+
+
+
+
+
+
 
 
 

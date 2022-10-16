@@ -695,7 +695,29 @@ class Button : Clickable, Focusable {
 }
 ```
 
+#### 2. open, final, abstract 변경자: 기본적으로 final 
+- 자바는 final로 상속을 금지하지 않으면 기본적으로 상속이 가능
+  - 취약한 기반 클래스 (fragile base class) 문제 : 기반 클래스의 의도와 다른 방식으로 메서드가 오버라이드 될 위험
+- 코틀린에서는 클래스와 메서드가 기본적으로 final
+  - 클래스, 메서드, 프로퍼티에 상속을 허용하려면 open 변경자를 붙여야 한다.  
+```kotlin
+open class RichButton : Clickable { // open : 다른 클래스가 이 클래스를 상속할 수 있다. 
+    fun disable() {}  // 이 함수는 final. 하위 클래스가 이 메서드를 오버라이드 할 수 없다. 
+    open fun animate() {}  // open : 하위 클래스에서 이 메서드를 오버라이드할 수 있다. 
+    override fun click() {}  // 상위 클레스에 선언된 열려있는 메서드를 오버라이드한다.
+    // final override fun click() {}  오버라이드 메서드는 기본적으로 열려있어서 final을 붙여야 오버라이드 할 수 없게 된다.
+}
+```
 
+- 자바처럼 코틀린에서도 abstract 클래스를 선언할 수 있다. abstract로 선언한 추상 클래스는 인스턴스화할 수 없다. 
+추상 클래스에는 구현이 없는 추상 멤버가 있기 때문에 하위 클래스에서 그 추상 멤버를 오버라이드 해야만 하는 게 보통이다. 따라사 추상 멤버는 항상 열려 있고 
+추상 멤버 앞에 open 변경자를 명시할 필요가 없다. 
+```kotlin
+abstract class Animated {
+    abstract fun animate() 
+    open fun stopAnimating() {} // 추상 클래스에 속했더라도 비추상 함수는 기본적으로 final이지만 open 으로 오버라이드 허용 가능
+}
+```
 
 
 

@@ -713,15 +713,43 @@ open class RichButton : Clickable { // open : 다른 클래스가 이 클래스�
 추상 클래스에는 구현이 없는 추상 멤버가 있기 때문에 하위 클래스에서 그 추상 멤버를 오버라이드 해야만 하는 게 보통이다. 따라사 추상 멤버는 항상 열려 있고 
 추상 멤버 앞에 open 변경자를 명시할 필요가 없다. 
 ```kotlin
-abstract class Animated {
-    abstract fun animate() 
-    open fun stopAnimating() {} // 추상 클래스에 속했더라도 비추상 함수는 기본적으로 final이지만 open 으로 오버라이드 허용 가능
+abstract class Animated {  // 이 클래스는 추상 클래스. 이 클래스의 인스턴스를 만들 수 없다. 
+    abstract fun animate()  // 구현이 없는 추상 함수. 하위 클래스에서 이 함수를 반드시 오버라이드 해야 한다. 
+    fun stopAnimating() {} // 추상 클래스에 속했더라도 비추상 함수는 기본적으로 final이지만 
+    open fun animateTwice() {} // open 으로 오버라이드 허용 가능
 }
 ```
 
+- 인터페이스 멤버 
+  - 인터페이스 멤버의 경우 final, open, abstract를 사용하지 않는다.
+  인터페이스 멤버는 항상 열려 있으며 final로 변경할 수 없다. 인터페이스 멤버에게 본문이 없으면 자동으로 추상 멤버가 되지만, 
+  그렇더라도 멤버 선언 앞에 abstract 키워드를 덧붙일 필요가 없다. 
+
+- 클래스 멤버에 대한 상속 제어 변경자 
+  - final : 오버라이드 할 수 없음 - 클래스 멤버의 기본 변경자
+  - open : 오버라이드 할 수 있음 - 반드시 open을 명시해야 오버라이드 가능
+  - abstract : 오버라이드 필수 - 추상 클래스의 멤버에만 이 변경자를 붙일 수 있다. 추상 멤버에는 구현이 잇으면 안 된다.
+  - override : 상위 클래스나 상위 인스턴스의 멤버를 오버라이드 하는 중 - 오버라이드하는 멤버는 기본적으로 열려있다. 하위 클래스의 오버라이드를 금지하려면 final 추가
 
 
+#### 3. 가시성 변경자(visibility modifier): 기본적으로 공개
+- 코틀린 가시성 변경자 : public(기본), internal, protected, private
+- 코틀린은 패키지를 네임스페이스를 관리하기 위한 용도로만 사용한다. 그래서 패키지를 가시성 제어에 사용하지 않는다. 
+- 패키지 전용 가시성에 대한 대안은 internal. 모듈 내부로 제한. 모듈은 한번에 컴파일 되는 코틀린 파일들 ?
 
+```kotlin
+internal open class TalkativeButton : Focusable {
+		private fun yell() = println("Hey!")
+		protected fun whisper() = println("Let's talk!")
+}
+
+fun TalkativeButton.giveSpeech() {  // 오류: "public" 멤버가 자신의 "internal" 수신 타입인 "TalkativeButton"을 노출
+		yell()  // 오류: "yell"은 private 이라 접근 불가
+		whisper() // 오류: "whisper"에 접근할 수 없음: "whisper"는 "TalkativeButton"의 "protected" 멤버임
+}
+```
+
+### 4. 내부 클래스와 중첩된 클래스: 기본적으로 중첩 클래스
 
 
 

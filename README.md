@@ -789,7 +789,8 @@ fun TalkativeButton.giveSpeech() {  // 오류: "public" 멤버가 자신의 "int
   - 여러가지 인터페이스를 위임해서 사용하고 싶을때도 사용 가능
 - object 키워드: 
 
-
+슬랙 ?? 
+- 무명 클래스 > 람다 > run 
 
 
 

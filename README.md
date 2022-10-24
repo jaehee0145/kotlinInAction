@@ -800,4 +800,121 @@ fun TalkativeButton.giveSpeech() {  // 오류: "public" 멤버가 자신의 "int
 - 자바 함수형 인터페이스를 코틀린데서 사용
 - 수신 객체 지정 람다 사용
 
+- 람다 식 또는 람다는 기본적으로 다른 함수에 넘길 수 있는 작음 코드 조각을 뜻한다. 람다를 사용하면 쉽게 공통 코드 구조를 라이브러리 함수로 뽑아낼 수 있다. 
 
+### 5.1 람다 식과 멤버 참조
+1. 람다 소개: 코드 블록을 함수 인자로 넘기기
+- 일련의 동작을 변수에 저장하거나 다른 함수에 넘겨야 하는 경우
+  - 예전 자바에서는 무명 내부 클래스를 이용 - 번거로움
+  - 함수형 프로그래밍에서는 함수를 값처럼 다른 함수에 전달
+
+```java
+/* Java - 무명 내부 클래스로 리스너 구현*/
+button.setOnClickListener(new OnClickListener() {
+    @Override
+    public vlid onClick(View view) {
+        /* 클릭시 수행할 동작 */
+    }
+});
+
+/* 람다로 리스너 구현하기 */
+button.setOnClickListener { /* 클릭시 수행할 동작 */ }
+```
+
+2. 람다와 컬렉션
+- 컬렉션을 다룰 때 수행하는 대부분의 작업은 몇 가지 일반적인 패턴에 속한다.
+- 람다가 없으면 이러한 패턴을 라이브러리로 제공하기 힘들다. 
+- 이러한 이유로 자바8 이전에는 필요한 컬렉션 기능을 직접 작성해야 했다.
+
+```kotlin
+// 컬렉션을 직접 검색하기 
+fun findTheOldest(people: List<Person>) {
+    var maxAge = 0;
+    var theOldest: Person? = null
+    for (person in people) {
+        if (person.age > maxAge) {
+            maxAge = person.age
+            theOldest = person
+        }
+    }
+    println(theOldest)
+}
+
+// 람다를 사용해 컬렉션 검색하기
+>>> val people = listOf(Person("Alice", 29), Person("Tom", 31))
+>>> println(people.maxBy { it.age })
+
+// 멤버 참조를 사용해 컬렉션 검색하기
+people.maxBy(Person::age)
+```
+- 모든 컬렉션에 대해 maxBy함수를 호출할 수 있다. 
+
+3. 람다 식의 문법
+- 람다는 값처럼 전달할 수 있는 동작의 모음
+- 람다를 다로 선언해서 변수에 저장할 수도 있지만 람다를 정의하면서 함수에 인자로 넘기는 경우가 대부분
+
+```kotlin
+{ x: Int, y: Int -> x + y }
+```
+- 코틀린 람다 식은 항상 중괄호
+- 화살표가 파라미터와 본문을 구분 
+
+```kotlin
+// 정식으로 작성한 람다
+people.maxBy({ p: Person -> p.age })
+
+// 함수 호출 시 맨 뒤에 있는 인자가 람다 식이라면 그 람다를 괄호 밖으로 빼낼 수 있다. 
+people.maxBy() { p: Person -> p.age }
+
+// 람다가 어떤 함수의 유일한 인자이고 괄호 뒤에 람다를 썼다면 빈 괄호를 없앨 수 있다. 
+people.maxBy { p: Person -> p.age }
+
+// 컴파일러가 타입 추론이 가능하므로 생략
+people.maxBy { p -> p.age }
+
+// 람다의 파라미터 디폴트 이름 it으로 변경하고 바로 사용 가능
+people.maxBy { it.age }
+```
+
+4. 현재 영역에 있는 변수에 접근 
+- 자바 메서드 안에서 무명 내부 클래스를 정의할 때 메서드의 로컬 변수를 무명 내부 클래스에서 사용할 수 있다.
+람다를 함수 안에서 정의하면 함수의 파라미터 뿐 아니라 람다 정의 앞에 선언된 로컬 변수까지 람다에서 모두 사용할 수 있다. 
+
+```kotlin
+fun printMessagesWithPrefix(messages: Collection<String>, prefix: String) {
+    messages.forEach {
+        println("$prefix : $it")
+    }
+}
+```
+
+- 자바와 다른 점: 코틀린 람다 안에서는 파이널 변수가 아닌 변수에 접근할 수 있고, 변수를 변경할 수 있다.
+```kotlin
+fun printProblemCounts(responses: Collection<String>) {
+    var clientErrors = 0
+    var serverErrors = 0
+    responses.forEach {
+        if (it.startsWith("4")) {
+            clientErrors++
+        } else {
+            serverErrors++
+        }
+    }
+    
+}
+```
+- prefix, clientErrors, serverErrors와 같이 람다 안에서 사용하는 외부 변수를 '람다가 포획한 변수'
+
+5. 멤버 참조
+- 코틀린에서는 자바8과 마찬가지로 함수를 값으로 바꿀 수 있다. 이때 이중 콜론을 사용한다.
+::을 사용하는 식을 멤버 참조라고 부른다. 멤버 참조는 프로퍼티나 메서드를 단 하나만 호출하는 함수 값을 만들어준다. 
+```kotlin
+val getAge = Person::age
+```
+
+- 최상위에 선언된 함수나 프로퍼티를 참조할 수도 있다. 
+```kotlin
+fun salute() = println("salute")
+>>> run(::salute)
+// run은 인자로 받은 람다를 호출 
+```

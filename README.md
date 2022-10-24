@@ -1026,3 +1026,38 @@ listOf(1, 2, 3, 4).asSequence()
 
 
 ### 5.4 자바 함수형 인터페이스 활용
+- 어떻게 코틀린 람다를 자바 API에서 활용할 수 있는지 살펴보자
+
+1. 자바 메서드에 람다를 인자로 전달
+- 함수형 인터페이스를 원하는 자바 메서드에 코틀린 람다를 전달할 수 있다. 
+
+```kotlin
+// 자바 - 함수형 인터페이스 Runnable을 인자로 받는 메서드 
+void postponeComputation(int delay, Runnable computation)
+
+// 코틀린 
+postponeComputation(1000) { println(42) }
+```
+- 컴파일러가 람다를 Runnable 인스턴스로 변환해준다.
+  - Runnable 인스턴스 : Runnable을 구현한 무명 클래스의 인스턴스
+  - 컴파일러가 자동으로 무명 클래스와 인스턴스를 만들어준다.
+  - 이때 그 무명 클래스에 있는 유일한 추상 메서드를 구현할 때 람다 본문을 메서드 본문으로 사용한다.
+
+```kotlin
+postponeComputation(1000, object: Runnable { // 객체 식을 함수형 인터페이스 구현으로 넘긴다.
+    override fun run() {
+        println(42)
+    }
+})
+```
+- 람다와 무명 객체는 차이
+  - 무명 객체: 객체를 명시적으로 선언하는 경우 메서드를 호출할 때마다 새로운 객체가 생성
+  - 람다: 정의가 들어있는 함수의 변수에 접근하지 않는 람다에 대응하는 무명 객체를 메서드를 호출할 때마다 반복 사용한다.??
+    - 그러나 람다가 주변 영역의 변수를 포획한다면 새로운 인스턴스를 생성한다.
+```kotlin
+fun handleComputation(id: String) { // 람다 안에서 id 변수를 포획 
+    postponeComputation(1000) { println(id) }   // 호출마다 새로운 Runnable 인스턴스를 생성 
+}
+```
+
+2. SAM 생성자: 람다를 함수형 인터페이스로 명시적으로 변경 

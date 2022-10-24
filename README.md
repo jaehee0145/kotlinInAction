@@ -918,3 +918,111 @@ fun salute() = println("salute")
 >>> run(::salute)
 // run은 인자로 받은 람다를 호출 
 ```
+
+### 5.2 컬렉션 함수형 API
+1. 필수적인 함수 : filter와 map
+
+```kotlin
+data class Person(val name: String, val age: Int) 
+
+val people = listOf(Person("Alice", 89), Person("Tom", 112))
+println(people.filter { it.age > 90 })
+```
+- filter: 컬렉션에서 원치 않는 원소를 제거한다. 원소를 변환할 수는 없다.
+
+```kotlin
+val people = listOf(Person("Alice", 89), Person("Tom", 112))
+println(people.map { it.name })
+>>> [Alice, Tom]
+
+// 멤버 참조 사용 
+println(people.map(Person::name))
+
+// 연쇄
+people.filter { it.age > 90 }.map(Person::name)
+
+// 나이 최댓값과 같은 모든 사람 반환 
+people.filter { it.age == people.maxBy(Person::age)!!.age }
+
+// 반복 연산 제거
+val maxAge = people.maxBy(Person::age)!!.age
+people.filter { it.age == maxAge }
+```
+
+2. all, any, count, find: 컬렉션에 술어 적용
+- 컬렉션에 대해 자주 수행하는 연산
+- all, any: 모든 원소 또는 특정 원소가 어떤 조건을 만족하는지 판단하는 연산
+
+```kotlin
+val canBeInClub27 = { p: Person -> p.age <= 27 }
+>>> val people = listOf(Person("Alice", 24), Person("Tom", 112))
+>>> println(people.all(canBeInClub27))
+false
+
+>>> println(people.any(canBeInClub27))
+false
+
+// count 사용
+>>> println(people.count(canBeInClub27))
+1
+
+// 단순히 count만 필요한 경우에는 조건에 해당하는 컬렉션을 생성해서 size를 구하는 것보다 효율적
+>>> println(people.filter(canBeInClub27).size)
+1
+
+// find 는 firstOrNull과 같다. 
+>>> println(people.find(canBeInClub27))
+Person(name=Alice, age=24)
+```
+
+3. groupBy: 리스트를 여러 그룹으로 이뤄진 맵으로 변경
+```kotlin
+>>> val people = listOf(Person("Alice", 24), Person("Tom", 112), Person("A", 112))
+>>>println(people.groupBy { it.age })
+// Map<Int, List<Person>>
+{24 = [Person("Alice", 24)], 112 = [Person("Tom", 112), Person("A", 112)]}
+
+
+>>> val list = listOf("ab", "aa", "bb")
+>>> println(list.groupBy(String::first))
+{a = [ab, aa], b = [bb]}
+```
+
+4. flatMap과 flatten: 중첩된 컬렉션 안의 원소 처리
+```kotlin
+>>> val strings = listOf("abc", "def")
+>>> println(strings.flatMap { it.toList() })
+[a, b, c, d, e, f]
+
+// 중첩된 리스트 
+>>> val strings = listOf(listOf("abc", "def"), listOf("ggg", "hhh", "iii"))
+>>> println(strings.flatten())
+[abc, def, ggg, hhh, iii]
+```
+
+### 5.3 지연 계산 lazy 컬렉션 연산
+- map이나 filter 같은 함수는 결과 컬렉션을 즉시 생성한다.
+- sequence를 사용하면 중간 임시 컬렉션을 사용하지 않고 컬렉션 연산을 연쇄할 수 있다. 
+
+```kotlin
+people.asSequence() // 원본 컬렉션을 시퀀스로 변환
+    .map(Person::name) // 시퀀스도 컬렉션과 동일한 API를 제공
+    .filter { it.startsWith("A") }
+    .toList() // 결과 시퀀스를 다시 리스트로 변환
+```
+
+- Sequence 인터페이스 안에는 iterator 메서드만 있음
+- 시퀀스의 원소는 필요할 때 계산되기 때문에 중간 처리 결과를 저장하지 않고도 계산을 수행할 수 있다.
+
+1. 시퀀스 연산 실행: 중간 연산과 최종 연산
+```kotlin
+// 최종 연산이 없어서 아무것도 출력되지 않는다. 
+listOf(1, 2, 3, 4).asSequence()
+    .map { println("map($it"); it * it }
+    .filter { println("filter($it"); it % 2 == 0}
+```
+- 지연 계산은 원소를 하나씩 처리한다.
+<img width="700" alt="스크린샷 2022-10-24 오후 11 48 05" src="https://user-images.githubusercontent.com/45681372/197555542-35999312-e1e8-4d8e-9ce7-79e772df63fd.png">
+
+
+### 5.4 자바 함수형 인터페이스 활용

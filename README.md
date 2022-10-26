@@ -1061,3 +1061,60 @@ fun handleComputation(id: String) { // 람다 안에서 id 변수를 포획
 ```
 
 2. SAM 생성자: 람다를 함수형 인터페이스로 명시적으로 변경 
+
+### 5.5 수신 객체 지정 람다: with 와 apply
+- 수신 객체 지정 람다 : 수신 객체를 명시하지 않고 람다의 본문 안에서 다른 객체의 메서드를 호출할 수 있게 하는 것
+
+1. with 함수
+```kotlin
+fun alphabet(): String {
+    val result = StringBuilder() 
+    for (letter in 'A'..'Z') {
+        result.append(letter)
+    }
+    result.append("\nNow I know the alphabet")
+    return result.toString()
+}
+
+// with 활용
+fun alphabet(): String {
+    val stringBuilder = StringBuilder
+    return with(stringBuilder) {    //메서드를 호출하려는 수신 객체 지정
+        for (letter in 'A'..'Z') {
+            this.append(letter) //this를 명시해 수신 객체의 메서드를 호출
+        }
+        append("\nNow I know the alphabet") //this 생략하고 메서드 호출 
+        this.toString()
+    }
+}
+```
+- with는 파라미터가 2개 있는 함수
+- 인자1로 받은 객체를 인자2로 받은 람다의 수신 객체로 만든다. 
+- this를 사용해 수신 객체에 접근할 수 있다. 
+- 일반적인 this와 마찬가지로 this와 점.을 사용하지 않고 프로퍼티나 메서드 이름만 사용해도 수신 객체의 멤버에 접근 가능
+
+```kotlin
+// 리팩토링
+fun alphabet() = with(StringBuilder()) {
+    for (letter in 'A'..'Z') {
+        append(letter)
+    }
+    append("\nNow I know the alphabet")
+    toString()
+}
+```
+
+2. apply 함수
+- with와 동일한데 자신에게 전달된 객체(수신 객체)를 반환한다는 것이 차이점
+
+```kotlin
+fun alphabet() = StringBuilder().apply {
+    for (letter in 'A'..'Z') {
+        append(letter)
+    }
+    append("\nNow I know the alphabet")
+}.toString()
+```
+
+- 객체의 인스턴스를 만들면서 즉시 프로퍼티 중 일부를 초기화해야 하는 경우 유용
+  - 자바에서 보통 Builder 객체가 하던 역할  

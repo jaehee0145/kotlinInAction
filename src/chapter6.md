@@ -36,11 +36,40 @@ fun strLen(s: String?) = s.length()
 fun strLensafe(s: String?): Int = 
     if (s != null) s.length else 0  // null 검사를 추가해야 컴파일된다.
 ```
-- 해당 값을 다룰 수 있는 다양한 도구 제공
-
+- 널 가능성을 다루기 위해 사용할 수 있는 도구가 if 뿐이라면 불필요한 코드가 많아졌을 것
+  - 해당 값을 다룰 수 있는 다양한 도구 제공
 
 ### 타입의 의미
+- 자바의 타입 시스템은 널을 제대로 다루지 못한다!
+  - 변수에 선언된 타입이 있지만 널 여부를 추가로 검사하기 전에는 그 변수에 대해 어떤 연산을 수행할 수 있을지 알 수 없다.
+  - ex. String : null이 될 수 있지만 String이 실행할 수 있는 연산과 완전히 다름
+- 코틀린에서 종합적인 해법을 제공
+
 ### 안전한 호출 연산자: ?.
+- 코틀린에서 제공하는 가장 유용한 도구 중 하나 
+- null 검사와 메서드 호출을 한번의 연산으로 수행
+
+```kotlin
+// java style
+if (s != null) {
+    s.toUpperCase()
+} else {
+    null
+}
+
+// 동일한 로직의 코드 
+s?.toUpperCase()
+
+// 안전한 호출 연산자를 연쇄 사용
+fun Person.countryName(): String {
+    val country = this.company?.address?.country    
+    return if (country != null) country else "UNKNOWN"
+}
+```
+
+
+
+---
 ### 엘비스 연산자: ?:
 ### 안전한 캐스트: as?
 ### 널 아님 단언: !!

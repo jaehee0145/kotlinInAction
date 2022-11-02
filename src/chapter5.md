@@ -111,7 +111,7 @@ fun printProblemCounts(responses: Collection<String>) {
 ```
 - prefix, clientErrors, serverErrors와 같이 람다 안에서 사용하는 외부 변수를 '람다가 포획한 변수(capture)'
 
-5. 멤버 참조
+### 멤버 참조
 - 코틀린에서는 자바8과 마찬가지로 함수를 값으로 바꿀 수 있다. 이때 이중 콜론을 사용한다.
   ::을 사용하는 식을 멤버 참조라고 부른다. 멤버 참조는 프로퍼티나 메서드를 단 하나만 호출하는 함수 값을 만들어준다.
 ```kotlin
@@ -125,8 +125,8 @@ fun salute() = println("salute")
 // run은 인자로 받은 람다를 호출 
 ```
 
-### 5.2 컬렉션 함수형 API
-1. 필수적인 함수 : filter와 map
+## 5.2 컬렉션 함수형 API
+### 필수적인 함수 : filter와 map
 
 ```kotlin
 data class Person(val name: String, val age: Int) 
@@ -155,7 +155,8 @@ val maxAge = people.maxBy(Person::age)!!.age
 people.filter { it.age == maxAge }
 ```
 
-2. all, any, count, find: 컬렉션에 술어 적용
+
+### all, any, count, find: 컬렉션에 술어 적용
 - 컬렉션에 대해 자주 수행하는 연산
 - all, any: 모든 원소 또는 특정 원소가 어떤 조건을 만족하는지 판단하는 연산
 
@@ -181,7 +182,7 @@ false
 Person(name=Alice, age=24)
 ```
 
-3. groupBy: 리스트를 여러 그룹으로 이뤄진 맵으로 변경
+### groupBy: 리스트를 여러 그룹으로 이뤄진 맵으로 변경
 ```kotlin
 >>> val people = listOf(Person("Alice", 24), Person("Tom", 112), Person("A", 112))
 >>>println(people.groupBy { it.age })
@@ -194,7 +195,8 @@ Person(name=Alice, age=24)
 {a = [ab, aa], b = [bb]}
 ```
 
-4. flatMap과 flatten: 중첩된 컬렉션 안의 원소 처리
+
+### flatMap과 flatten: 중첩된 컬렉션 안의 원소 처리
 ```kotlin
 >>> val strings = listOf("abc", "def")
 >>> println(strings.flatMap { it.toList() })
@@ -206,7 +208,7 @@ Person(name=Alice, age=24)
 [abc, def, ggg, hhh, iii]
 ```
 
-### 5.3 지연 계산 lazy 컬렉션 연산
+## 5.3 지연 계산(lazy) 컬렉션 연산
 - map이나 filter 같은 함수는 결과 컬렉션을 즉시 생성한다.
 - sequence를 사용하면 중간 임시 컬렉션을 사용하지 않고 컬렉션 연산을 연쇄할 수 있다.
 
@@ -220,7 +222,8 @@ people.asSequence() // 원본 컬렉션을 시퀀스로 변환
 - Sequence 인터페이스 안에는 iterator 메서드만 있음
 - 시퀀스의 원소는 필요할 때 계산되기 때문에 중간 처리 결과를 저장하지 않고도 계산을 수행할 수 있다.
 
-1. 시퀀스 연산 실행: 중간 연산과 최종 연산
+
+### 시퀀스 연산 실행: 중간 연산과 최종 연산
 ```kotlin
 // 최종 연산이 없어서 아무것도 출력되지 않는다. 
 listOf(1, 2, 3, 4).asSequence()
@@ -230,8 +233,12 @@ listOf(1, 2, 3, 4).asSequence()
 - 지연 계산은 원소를 하나씩 처리한다.
   <img width="700" alt="스크린샷 2022-10-24 오후 11 48 05" src="https://user-images.githubusercontent.com/45681372/197555542-35999312-e1e8-4d8e-9ce7-79e772df63fd.png">
 
+> 자바 스트림과 코틀린 시퀀스 비교
+> - 코틀린 시퀀스는 자바 스트림 이전에 만들어졌다.
+> - 거의 동일해서 자바 스트림을 사용해도 무방하다.
 
-### 5.4 자바 함수형 인터페이스 활용
+
+## 5.4 자바 함수형 인터페이스 활용
 - 어떻게 코틀린 람다를 자바 API에서 활용할 수 있는지 살펴보자
 
 1. 자바 메서드에 람다를 인자로 전달
@@ -265,13 +272,12 @@ fun handleComputation(id: String) { // 람다 안에서 id 변수를 포획
     postponeComputation(1000) { println(id) }   // 호출마다 새로운 Runnable 인스턴스를 생성 
 }
 ```
+### SAM 생성자: 람다를 함수형 인터페이스로 명시적으로 변경
 
-2. SAM 생성자: 람다를 함수형 인터페이스로 명시적으로 변경
-
-### 5.5 수신 객체 지정 람다: with 와 apply
+## 5.5 수신 객체 지정 람다: with 와 apply
 - 수신 객체 지정 람다 : 수신 객체를 명시하지 않고 람다의 본문 안에서 다른 객체의 메서드를 호출할 수 있게 하는 것
 
-1. with 함수
+### with 함수
 ```kotlin
 fun alphabet(): String {
     val result = StringBuilder() 
@@ -310,7 +316,7 @@ fun alphabet() = with(StringBuilder()) {
 }
 ```
 
-2. apply 함수
+### apply 함수
 - with와 동일한데 자신에게 전달된 객체(수신 객체)를 반환한다는 것이 차이점
 
 ```kotlin
@@ -325,7 +331,7 @@ fun alphabet() = StringBuilder().apply {
 - 객체의 인스턴스를 만들면서 즉시 프로퍼티 중 일부를 초기화해야 하는 경우 유용
     - 자바에서 보통 Builder 객체가 하던 역할
 
-### 5.6 요약
+## 5.6 요약
 - 람다를 사용하면 코드 조각을 다른 함수에게 인자로 넘길 수 있다.
 - 코틀린에서는 람다가 함수 인자인 경우 괄호 밖으로 람다를 빼낼 수 있고, 람다의 인자가 단 하나뿐인 경우 인자 이름을 지정하지 않고 it이라는 디폴트 이름으로 부를 수 있다.
 - 람다 안에 있는 코드는 그 람다가 들어있는 바깥 함수의 변수를 읽거나 쓸 수 있다.

@@ -67,10 +67,41 @@ fun Person.countryName(): String {
 }
 ```
 
-
-
----
 ### 엘비스 연산자: ?:
+- 엘비스 elvis 연산자 : null 대신 사용할 디폴트 값을 지정할 때 사용 
+- 이항 연산자로 좌항이 널이 아니면 좌항 값을, 좌항이 널이면 우항 값을 결과로 
+
+```kotlin
+fun foo(s: String?) {
+    val t: String = s ?: "" // s가 null 이면 결과는 ""
+}
+```
+
+- 객체가 널인 경우 널을 반환하는 안전한 호출 연산자(?.)와 함께 사용하는 패턴 
+```kotlin
+// 앞에서 나온 예제
+fun strLensafe(s: String?): Int = 
+    if (s != null) s.length else 0  
+
+// 패턴을 사용해서 개선
+fun strLenSafe(s: String?): Int = s?.length ?: 0
+```
+
+- 코틀린에서는 return이나 throw 등의 연산도 식이라서 엘비스 연산자 우항에 넣을 수 있음
+```kotlin
+class Address (val streetAddress: String, val zipCode: Int, val city: String, val country: String)
+class Company (val name: String, val address: Address?)
+class Person (val name: String, val company: Cpmpany?)
+fun printShippingLabel (person: Person) {
+  val address = person.company?.address ?: throw new IllegalArgumentException ("No address")
+  with(address) {
+    println(streetAddress)
+    println("$zipCode $city, $country")
+  }
+}
+```
+
+--- 
 ### 안전한 캐스트: as?
 ### 널 아님 단언: !!
 ### let 함수

@@ -101,10 +101,58 @@ fun printShippingLabel (person: Person) {
 }
 ```
 
---- 
 ### 안전한 캐스트: as?
+- 어떤 값을 지정한 타입으로 캐스트 하는데 변환할 수 없으면 null 반환
+- 캐스트를 수행한 뒤에 엘비스 연산자를 사용하는 것이 일반적인 패턴
+
+```kotlin
+class Person (val firstName: String, val lastName: String) {
+    override fun equals(o: Any?): Boolean {
+        val otherPerson = o as? Person ?: return false // 타입이 서로 일치하지 않으면 false
+        return otherPerson.firstName == firstName && otherPerson.lastName == lastName
+    }
+}
+```
+
 ### 널 아님 단언: !!
+- 어떤 값이든 널이 될 수 없는 타입으로 바꿀 수 있다. 
+- 널에 대해 !!을 적용하면 NPE 발생
+
+```kotlin
+fun ignoreNulls(s: String?) { // null이 가능한 타입인데
+  val sNotNull: String = s!!    // null이 아니라고 단언 
+  println(sNotNull.length)      // s가 null이면 s!!에서 에러 발생
+}
+
+person.company!!.address!!.country  // 안티 패턴; 어떤 값이 널인지 확인 어려움
+```
+
 ### let 함수
+- 널이 될 수 있는 값을 널이 아닌 값만 인자로 받는 함수에 넘기는 경우에 사용
+
+```kotlin
+fun sendEmailTo(email: String) {
+    println("sending email to $email")
+}
+
+>>> var email: String? = "test@email.com"
+>>> email?.let { sendEmailTo(it) }
+sending email to test@email.com
+
+>>> email = null
+>>> email?.let { sendEmailTo(it) }
+```
+
+- 긴 식이 있고 그 결과가 널이 아닐 때 수행해야 하는 로직이 있을때 유용
+```kotlin
+val person: Person? = getTheBestPersonIntheWorld()
+if (person != null) sendEmailTo(person.email)
+
+// 개선
+getTheBestPersonIntheWorld()?.let { sendEmailTo(it.email) }
+```
+
+--- 
 ### 나중에 초기화할 프로퍼티
 ### 널이 될 수 있는 타입 확장
 ### 타입 파라미터의 널 가능성

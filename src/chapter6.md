@@ -152,8 +152,38 @@ if (person != null) sendEmailTo(person.email)
 getTheBestPersonIntheWorld()?.let { sendEmailTo(it.email) }
 ```
 
---- 
-### 나중에 초기화할 프로퍼티
+### 나중에 초기화할 프로퍼티 lateinit
+- 코틀린에서 일반적으로 생성자에서 모든 프로퍼티를 초기화해야 한다. 
+  - 널이 될 수 없는 타입의 프로퍼티를 초기화 할 수 없으면 널이 될 수 있는 타입으로 사용해야 함
+- lateinit 변경자를 붙이면 프로퍼티를 나중에 초기화할 수 있다.
+
+```kotlin
+class MyService {
+  fun performAction(): String = "foo"
+}
+
+class MyTest {
+  private lateinit var myService: MyService   // 초기화하지 않고 널이 될수 없는 프로퍼티 선언
+
+  @Before fun setUp() {
+    myService = MyService()
+  }
+  
+  @Test fun testAction() {
+      Assert.assertEquals("foo", myService.performAction())
+  }
+}
+```
+
 ### 널이 될 수 있는 타입 확장
+- 널이 될 수 있는 타입에 대한 확장 함수를 정의하면 null 값을 다루는 강력한 도구로 활용할 수 있다.
+- 어떤 메서드를 호출하기 전에 수신 객체 역할을 하는 변수가 널이 될 수 없다고 보장하는 대신, 직접 변수에 대해 메서드를 호출해도 확장 함수인 메서드가 알아서 널을 처리 
+  - 이런 처리는 확장 함수에서만 가능
+  - 일반 멤버 호출은 객체 인스턴스를 통해 디스패치(dispatch) 되므로 그 인스턴스가 널인지 여부를 검사하지 않는다.
+  > 객체 지향 언어에서 객체의 동적 타입에 따라 적절한 메서드를 호출해주는 방식을 동적 디스패치라 부른다. 반대로 컴파일러가 컴파일 시점에 어떤 메서드가 호출될지 결정해서 코드를 생성하는 방식을 직접 디스패치라고 한다.
+
+
+
+--- 
 ### 타입 파라미터의 널 가능성
 ### 널 가능성과 자바

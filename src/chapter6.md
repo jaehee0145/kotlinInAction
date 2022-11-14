@@ -182,14 +182,48 @@ class MyTest {
   - 일반 멤버 호출은 객체 인스턴스를 통해 디스패치(dispatch) 되므로 그 인스턴스가 널인지 여부를 검사하지 않는다.
   > 객체 지향 언어에서 객체의 동적 타입에 따라 적절한 메서드를 호출해주는 방식을 동적 디스패치라 부른다. 반대로 컴파일러가 컴파일 시점에 어떤 메서드가 호출될지 결정해서 코드를 생성하는 방식을 직접 디스패치라고 한다.
 
+### 타입 파라미터의 널 가능성
+- 코틀린에서 함수나 클래스의 모든 타입 파라미터는 기본적으로 널이 될 수 있다. 
+
+```kotlin
+fun <T> printHashCode(t: T) {
+    println(t?.hashCode())  // t가 null이 될 수 있으므로 안전한 호출    
+}
+>>> printHashCode(null) // T의 타입은 Any?로 추론된다. 
+```
+
+- 타입 파라미터가 널이 아님을 확실히 하려면 널이 될 수 없는 타입 상한(upper bound)을 지정해야 한다.
+
+```kotlin
+fun <T: Any> printHashCode(t: T) {  // t는 null이 될 수 없는 타입
+    println(t?.hashCode())      
+}
+>>> printHashCode(null) // 컴파일 에러 
+// Error: Type parameter bound for T is not satisfied
+```
+
+### 널 가능성과 자바
+- 자바와 코틀린은 상호운영성이 높다. 
+- 자바와 코틀린을 조합해서 사용할 때 안전하게 null을 사용하는 방법
+  - 자바 애노테이션 
+    - @Nullable + Type = Type? 
+    - @NotNull + Type = Type
+  - 코틀린은 여러 널 가능성 애노테이션을 알아본다. 
+    - JSR-305 표준 (javax.annotation package)
+    - Android (android.support.annotation package)
+    - JetBrains (org.jetbrains.annotations)
+  - null 가능성 애노테이션이 소스코드에 없는 경우 자바 타입은 코틀린의 플랫폼 타입이 된다. 
+
+**플랫폼 타입**
+- 플랫폼 타입은 코틀린이 널 관련 정보를 알 수 없는 타입을 말한다.
+- 그 타입을 널이 될 수 있는 타입으로 처리해도 되고, 널이 될 수 없는 타입으로 처리해도 된다.
+- 컴파일러는 모든 연산을 허용한다.
+- 널이 될 수 없는 타입 && 널 안전성을 검사하는 연산 : 경고
+  - 플랫폼 타입 && 널 안정성 검사 : 경고 없음 
+
 
 
 --- 
-### 타입 파라미터의 널 가능성
-### 널 가능성과 자바
-
-
-
 ## 6.2 코틀린의 원시 타입 
 ### 원시 타입: Int, Boolean 등
 ### 널이 될 수 있는 원시 타입: Int?. Boolean? 
@@ -197,3 +231,14 @@ class MyTest {
 ### Any, Any?: 최상위 타입
 ### Unit 타입: 코틀린의 void
 ### Nothing 타입: 이 함수는 결코 정상적으로 끝나지 않는다
+
+
+
+
+
+
+
+
+
+
+

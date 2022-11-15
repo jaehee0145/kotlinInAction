@@ -221,12 +221,89 @@ fun <T: Any> printHashCode(t: T) {  // t는 null이 될 수 없는 타입
 - 널이 될 수 없는 타입 && 널 안전성을 검사하는 연산 : 경고
   - 플랫폼 타입 && 널 안정성 검사 : 경고 없음 
 
+```java
+public class Person {
+    private final String name;
+    public Person(String name) {
+        this.name = name;
+    }
+    public String getName() {   // 코드상으로는 null을 리턴할 가능성이 있음 
+        return name;
+    }
+}
+```
+```kotlin
+fun yellAt(person: Person) {
+    println(person.name.toUpperCase() + "!!!")
+}
+>>> yellAt(Person(null))
+// IllegalArgumentException : toUpperCase() 수신 객체로 널을 받을 수 없다.
+
+// 개선
+fun yellAtSafe(person: Person) {
+    println((person.name ?: "Anyone").toUpperCase() + "!!!")
+}
+>>> yellAt(Person(null))
+// ANYONE!!!
+```
+
+> 코틀린이 왜 플랫폼 타입을 도입했는가?  
+> 모든 자바 타입을 널이 될 수 있는 타입으로 다루면 결코 널이 될 수 없는 값에 대해서도 불필요한 널 검사가 들어간다.
+> 특히 제네릭을 다룰 때 비용이 커진다. 
+> 프로그래머에게 타입을 제대로 처리할 책임을 부여^^   
+> - ArrayList<String> 을 코틀린에서 ArrayList<String?>? 으로 처리하면 배열의 원소에 접근할 때마다 널 검사 or 안전한 캐스트   
+
+- 코틀린에서 플랫폼 타입을 선언할 수는 없다. 
+  - 자바에서 가져온 타입만 플랫폼 타입이 된다. 
+
+**상속**
+- 코틀린에서 자바 메서드를 오버라이드할 때 그 메서드의 파라미터와 반환 타입을 결정해야 한다.
+
+```java
+interface StringProcessor {
+    void process(String value);
+}
+```
+```kotlin
+class StringPrinter : StringProcessor {
+  override fun process(value: String) {
+    println(value)
+  }
+}
+class NullableStringPrinter : StringProcessor {
+  override fun process(value: String?) {
+    if (value != null) println(value)
+  }
+}
+```
 
 
---- 
 ## 6.2 코틀린의 원시 타입 
+- 코틀린은 원시 타입과 래퍼 타입을 구분하지 않는다. 
+
 ### 원시 타입: Int, Boolean 등
-### 널이 될 수 있는 원시 타입: Int?. Boolean? 
+- 자바 
+  - 원시 타입(primitive type)의 변수에는 값이 직접 들어간다.
+    - 원시 타입의 값을 효율적으로 저장하고 전달할 수 있다. 
+    - 메서드를 호출하거나 컬렉션에 원시 타입 값을 담을 수는 없다. 
+    - 참조 타입이 필요한 경우 래퍼 타입을 사용한다.
+  - 참조 타입(reference type)의 변수에는 메모리상 객체의 위치가 들어간다.
+- 코틀린
+  - 원시 타입과 래퍼 타입을 구분하지 않는다. 
+  - 숫자 타입 등 원시 타입의 값에 대해 메서드르 호출할 수 있다. 
+  - 실행 시점에 숫자 타입은 가능한 효율적인 방식으로 표현된다. 
+    - 대부분의 경우(변수, 프로퍼티, 파라미터, 반환 타입 등) 코틀린의 Int 타입은 자바 int 타입으로 컴파일 된다.
+    - 제네릭 클래스를 사용하는 경우는 제외 
+  - 자바 원시 타입에 해당하는 타입
+    - 정수 타입 Byte, Short, Int, Long
+    - 부동소수점 수 타입 Float, Double
+    - 문자 타입 Char
+    - 불리언 타입 Boolean
+  - 자바 원시 타입을 코틀린에서 사용할 때에는 널이 될 수 없는 타입으로 취급한다.
+
+### 널이 될 수 있는 원시 타입: Int?. Boolean?
+
+
 ### 숫자 변환
 ### Any, Any?: 최상위 타입
 ### Unit 타입: 코틀린의 void

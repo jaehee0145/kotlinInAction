@@ -302,14 +302,85 @@ class NullableStringPrinter : StringProcessor {
   - 자바 원시 타입을 코틀린에서 사용할 때에는 널이 될 수 없는 타입으로 취급한다.
 
 ### 널이 될 수 있는 원시 타입: Int?. Boolean?
-
+- null이 될 수 있는 코틀린 타입은 자바 원시 타입으로 표현할 수 없다. 
+  - 코틀린에서 널이 될 수 있는 원시 타입을 사용하면 자바의 래퍼 타입으로 컴파일된다. 
+- 제네릭 클래스의 경우 래퍼 타입을 사용한다.
+  - JVM에서 제네릭을 구현하는 방법 때문
+  - JVM은 타입 인자로 원시 타입을 허용하지 않는다. 
 
 ### 숫자 변환
+- 코틀린과 자바의 가장 큰 차이점 중 하나는 숫자를 변환하는 방식이다. 
+- 코틀린은 한 타입의 숫자를 다른 타입의 숫자로 자동 변환하지 않는다.
+  - 결과 타입이 허용하는 숫자의 범위가 원래 타입의 범위보다 넓은 경우에도 불가능
+
+```kotlin
+val i = 1
+val l: Long = i //  Error: type missmatch 컴파일 오류
+
+val l: Long = i.toLong();   // 변환 메서드를 직접 호출 
+```
+- 모든 원시 타입에 대한 변환 함수를 양방향으로 제공한다. (Boolean 제외)
+  - toByte(), toShort(), toChar() 등
+
 ### Any, Any?: 최상위 타입
+- 자바 Object
+  - 클래스 계층의 최상위 타입
+  - 참조 타입만 Object를 정점으로 하는 타입 계층에 포함, 원시 타입 제외
+- 코틀린 Any : 모든 널이 될 수 없는 타입의 조상 타입, 원시 타입 포함
+- 널을 포함하는 모든 값을 대입할 변수를 선언하려면 Any?
+
 ### Unit 타입: 코틀린의 void
+- 코틀린 Unit 타입은 자바 void와 같은 기능을 한다. 
+
+```kotlin
+fun f(): Unit {...} // 반환 타입으로 Unit
+fun f() {...}       // 반환 타입 선언 없이 정의한 블록이 본문인 함수와 같다. 
+```
+- 대부분의 경우 void와 Unit의 차이를 알기 어렵다.
+  - 코틀린 함수의 반환 타입이 Unit이고 그 함수가 제네릭 함수를 오버라이드 하지 않으면 그 함수는 내부에서 자바 void 함수로 컴파일
+- void와 달리 Unit을 타입 인자로 쓸 수 있고 모든 기능을 갖는 일반적인 타입
+  - Unit 타입에 속한 값은 단 하나 뿐이며, 그 이름도 Unit
+  - Unit 타입의 함수는 묵시적으로 Unit 값을 반환
+  - 두 특성은 제네릭 파라미터를 반환하는 함수를 오버라이드하면서 반환 타입으로 Unit을 쓸 때 유용
+```kotlin
+interface Processor<T> {
+    fun process() : T
+}
+class NoResultProcessor: Processor<Unit> {
+    override fun process() {
+        // 처리 코드 
+        // return 을 명시할 필요가 없다. 
+        // 컴파일러가 묵시적으로 return Unit
+    }
+}
+
+```
+
 ### Nothing 타입: 이 함수는 결코 정상적으로 끝나지 않는다
+- 코틀린에는 결코 성공적으로 값을 돌려주는 일이 없으므로?? '반환값' 이라는 개념 자체가 의미 없는 함수가 존재한다.
+- 함수가 정상적으로 끝나지 않는 경우를 표현하는 반환 타입 Nothing
 
+```kotlin
+fun fail(message: String) : Nothing {
+    throw IllegalStateException(message)
+}
+>>> fail("Error occurred")
+```
+- Nothing 타입은 아무값도 포함하지 않는다.
+  - 함수의 반환 타입이나 반환 타입으로 쓰일 타입 파라미터로만 쓸 수 있다. 
+- 변수를 선언하더라도 아무것도 저장할 수 없다. 
+- Nothing을 반환하는 함수를 엘비스 연산자의 우항에 사용해서 전제 조건을 검사할 수 있다. 
 
+```kotlin
+val address = company.address ?: fail("No address")
+```
+
+## 6.3 컬렉션과 배열 
+### 널 가능성과 컬렉션
+### 읽기 전용과 변경 가능한 컬렉션
+### 코틀린 컬렉션과 자바 
+### 컬렉션을 플랫폼 타입으로 다루기
+###  객체의 배열과 원시 타입의 배열
 
 
 

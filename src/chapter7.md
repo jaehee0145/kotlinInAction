@@ -275,7 +275,7 @@ val vacation = now..now.plusDays(10)
 println(now.plusWeeks(1) in vacation)
 >>> true
 ```
-- rangeTo 연산자는 다른 산술 연산자보다 우선순위가 다. 
+- rangeTo 연산자는 다른 산술 연산자보다 우선순위가 같다. 
   - 혼동을 피하기 위해 괄호
 
 
@@ -288,5 +288,78 @@ operator fun CharSequence.iterator(): CharIterator
 >>> for (c in "abc") {}
 ```
 
-## 7.4 구조 분해 선언과 component 함수
+## 7.4 구조 분해 선언(destructuring declaration)과 component 함수
+- 구조 분해를 사용하면 복합적인 값을 분해해서 여러 다른 변수를 한꺼번에 초기화할 수 있다. 
+
+```kotlin
+val p = Point(10, 20)
+val (x, y) = p
+println(x)
+>>> 10
+println(y)
+>>> 20
+```
+- 구조 분해 선언은 일반 변수 선언과 비슷해 보인다. 다만 = 의 좌변에 여러 변수를 괄호로 묶었다는 점이 다르다. 
+- 내부에서 구조 분해 선언은 다시 관례를 사용한다. 구조 분해 선언의 각 변수를 초기화하기 위해 componentN이라는 함수를 호출한다. 
+  - N은 구조 분해 선언에 있는 변수 위치에 따라 붙은 번호
+
+> val (a, b) = p   ------컴파일----> val a = p.component1(), val b = p.component2()
+- data 클래스의 주 생성자에 들어있는 프로퍼티에 대해서는 컴파일러가 자동으로 componentN 함수를 만들어준다. 
+- 데이터 타입이 아닌 클래스에서는 아래와 같이 구현한다. 
+```kotlin
+class Point(val x: Int, val y: Int) {
+    operator fun component1() = x
+    operator fun component2( ) = y
+}
+```
+- 구조 분해 선언은 여러 값을 반환할 때 유용하다. 
+- 여러 값을 한꺼번에 반환해야 하는 함수가 있다면 반환해야 하는 모든 값이 들어갈 데이터 클래스를 정의하고 함수의 반환 타입을 그 데이터 클래스로 바꾼다. 
+
+```kotlin
+data class NameComponents(val name: String, val extension: String)  //값을 저장하기 위한 데이터 클래스 선언
+fun splitFilename(fullName: String): NameComponents {
+    val result = fullName.split('.', limit = 2)
+    return NameComponents(result[0], result[1]) // 함수에서 데이터 클래스의 인스턴스를 반환
+}
+
+val(name, ext) = splitFilename("example.kt")    // 구조 분해 선언 구문을 사용해 데이터 클래스를 푼다. 
+println(name)
+>>> example
+prtinln(ext)
+>>> kt
+```
+
+- 배열이나 컬렉션에도 componentN 함수가 있어서 개선 가능
+```kotlin
+data class NameComponents(val name: String, val extension: String)
+fun splitFilename(fullName: String): NameComponents {
+    val (name, ext) = fullName.split('.', limit = 2)
+    return NameComponents(name, ext)
+}
+```
+- 코틀린 표준 라이브러리에서는 component5까지 제공한다. 
+- 표준 라이브러리의 Pair나 Triple 클래스를 사용하면 함수에서 여러 값을 더 간단한게 반환할 수 있다. 
+  - 장점: 직접 클래스를 작성할 필요가 없어 코드가 단순해 진다. 
+  - 단점: Pair나 Triple 안에 담겨있는 원소는 의미를 알 수 없어 가독성이 떨어진다. 
+
+### 구조 분해 선언과 루프 
+- 함수 본문 내의 선언문 뿐 아니라 변수 선언이 들어갈 수 있는 장소라면 어디든 구조 분해 선언을 사용할 수 있다. 
+- 특히 맵의 원소에 대해 이터레이션 할 때 구조 분해 선언이 유용하다.
+
+```kotlin
+fun printEntries(map: Map<String, String>) {
+  for ((key, value) in map) {   // 루프 변수에 구조 분해 선언을 사용한다. 
+    println("$key -> $value")
+  }
+}
+
+val map = mapOf("Oracle" to "Java", "Jet" to "kotlin")
+printEntries(map)
+>>> Oracle -> Java
+>>> Jet -> kotlin
+```
+- 두가지 코틀린 관례 사용
+  - 객체를 이터레이션하는 관례 
+  - 구조 분해 선언
+
 ## 7.5 프로퍼티 접근자 로직 재활용: 위임 프로퍼티 

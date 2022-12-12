@@ -451,8 +451,91 @@ class Person(val name: String) {
 - lazy 함수는 기본적으로 스레드 안전하다.
   - 하지만 필요에 따라 동기화에 사용할 락을 lazy 함수에 전달할 수 있고, 다중 스레드 환경에서 사용하지 않을 프로퍼티를 위해 lazy 함수가 동기화를 하지 못하게 막을 수도 있다. 
 
+### 위임 프로퍼티 구현
+- 어떤 객체의 프로퍼티가 바뀔 때마다 리스너에게 변경 통지를 보내는 기능
+  - 예를 들어 어떤 객체를 UI에 표시하는 경우 객체가 바뀌면 자동으로 UI도 바뀌어야 한다.
+  - 자바에서는 PropertyChangeSupport와 PropertyChangeEvent 클래스를 사용해 이런 통지를 처리하는 경우가 있다.
 
+- PropertyChangeSupport는 리스너의 목록을 관리하고 PropertyChangeEvent는 이벤트가 들어오면 목록의 모든 리스너에게 이벤트를 통지한다.
+  - 자바 빈 클래스의 필드에 PropertyChangeSupport 인스턴스를 저장하고 프로퍼티 변경 시 그 인스턴스에게 처리를 위임하는 방식으로 이런 통지 기능을 주로 구현 
 
+- 필드를 모든 클래스에 추가하고 싶지 않으므로 PropertyChangeSupport 인스턴스를 changeSupport라는 필드에 저장하고 프로퍼티 변경 리스너를 추적해주는 작은 도우미 클래스를 만들자
+
+```kotlin
+// PropertyChangeSupport를 사용하기 위한 도우미 클래스 
+open class PropertyChangeAware {
+  protected val changeSupport = PropertyChangeSupport(this)
+  fun addPropertyChangeListener(listener: PropertyChangeListener) {
+      changeSupport.addPropertyChangeListener(listener)
+  }
+  
+  fun removePropertyChangeListener(listner: PropertyChagListener) {
+    removeSupport.addPropertyChangeListener(listener)
+  }
+}
+```
+
+```kotlin
+class Person(val name: String, age: Int, salary: Int) : PropertyChageAware() {
+  var age: Int = age
+    set(newValue) {
+      val oldValue = field    // 뒷받침하는 필드에 접근할 때 field 식별자를 사용한다.
+      field = newValue
+      changeSupport.firePropertyChange("age", oldValue, newValue)   // 프로퍼티 변경을 리스너에게 통지
+    }
+  var salary: Int = salary
+    set(newValue) {
+      val oldValue = field
+      field = newValue
+      changeSupport.firePropertyChange("salary", oldValue, newValue)
+    }
+}
+>>> val p = Person("Dmitry", 34, 200)
+>>> p.addProperthChangeListener(
+  PropertyChangeListener { event ->
+    println("Property ${event.propertyName} changed" + 
+    "from ${event.oldValue} to ${event.newValue}")
+      
+  }
+)
+>>> p.age = 35
+Property age change frtm 34 to 35
+```
+
+- 위 코드는 field 키워드를 사용해 age와 salary 프로퍼티를 뒷받침하는 필드에 접근하는 방법을 보여준다.
+- setter 코드를 보면 중복이 많이 보인다. 프로퍼티의 값을 저장하고 필요에 따라 통지를 보내주는 클래스를 추출해보자 
+
+```kotlin
+class ObservableProperty(
+  val propName: String, var propValue: Int,
+  val changeSupport: PropertyChangeSupport
+) {
+  fun getValue(): Int = propValue
+  fun setValue(newValue: Int) {
+    val oldValue = propValue
+    propValue = newValue
+    changeSupport.firePropertyChange(propName, oldValue, newValue)
+  }
+}
+
+class Person(val name: String, age: Int, salary: Int) : PropertyChageAware() {
+  val _age = ObservableProperty("age", age, changeSupport)
+  var age: Int
+    get() = _age.getValue()
+    set(value) {
+      _age.setValue(value)
+    }
+  val _salary = ObservableProperty("salary", salary, changeSupport)
+  var salary: Int
+    get() = _salary.getValue()
+    set(value) {
+      _salary.setValue(value)
+    }
+}
+```
+- 프로퍼티 값을 저장하고 그 값이 바뀌면 자동으로 변경 통지를 전달해주는 클래스를 만들었고, 로직 중복이 상당 부분 제거됐다.
+- 하지만 아직도 각각 프로퍼티마다 ObservableProperty를 만들고 게터와 세터에서 작업을 위임하는 준비 코드가 상당 부분 필요하다.
+- 코틀린의 위임 프로퍼티 기능을 활용하면 이런 준비 코드를 없앨 수 있다. 
 
 
 

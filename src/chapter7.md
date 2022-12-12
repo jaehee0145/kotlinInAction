@@ -362,4 +362,74 @@ printEntries(map)
   - 객체를 이터레이션하는 관례 
   - 구조 분해 선언
 
-## 7.5 프로퍼티 접근자 로직 재활용: 위임 프로퍼티 
+## 7.5 프로퍼티 접근자 로직 재활용: 위임 프로퍼티(delegated property)
+- 코틀린이 제공하는 관례에 의존하는 특성 중에 독특하고 강력한 기능 
+- 장점
+  - 값을 뒷받침하는 필드에 단순히 저장하는 것보다 더 복잡한 방식으로 작동하는 프로퍼티를 쉽게 구현
+  - 그 과정에서 접근자 로직을 매번 재구현할 필요 없음
+- 디자인 패턴 중 **위임**에 기반한 특성
+  - 위임: 객체가 직접 작업을 수행하지 않고 다른 도우미 객체가 그 작업을 처리하게 맡기는 디자인 패턴
+  - 작업을 처리하느 도우미 객체를 위임 객체(delegate)라고 부른다.
+- 여기서는 그 패턴을 프로퍼티에 적용해서 접근자 기능을 도우미 객체가 수행하게 위임
+  - 도우미 객체를 직접 작성할 수도 있지만 코틀린이 제공하는 기능을 활용하는 것
+
+### 위임 프로퍼티 소개
+```kotlin
+class Foo {
+    var p: Type by Delegate()
+}
+// p 프로퍼티는 접근자 로직을 Delegate 클래스의 인스턴스에 위임한다. 
+```
+- 위임 프로퍼티의 일반적인 문법
+- by 뒤에 있는 식을 계산해서 위임에 쓰일 객체를 얻는다. 
+- 프로퍼티 위임 객체가 따라야 하는 관례를 따르는 모든 객체를 위임에 사용할 수 있다. 
+
+```kotlin
+class Foo {
+  private val delegate = Delegate()   // 컴파일러가 생성한 도우미 프로퍼티
+  var p: Type   // p 프로퍼티를 위해 컴파일러가 생성한 접근자는 "delegate"의 getValue와 setValue를 호출한다.
+  set(value: type) = delegate.setValue(..., value)
+  get() = delegate.getValue(...)
+}
+```
+- 컴파일러는 숨겨진 도우미 프로퍼티를 만들고 그 프로퍼티를 위임 객체의 인스턴스로 초기화 한다.
+- 프로퍼티 위임 관례를 따르는 Delegate 클래스는 getValue와 setValue 메서드를 제공해야 한다.
+- 관례를 사용하는 다른 경우와 마찬가지로 getValue와 setValue는 멤버 메서드이거나 확장 함수일 수 있다. 
+
+```kotlin
+class Delegate {
+    operator fun getValue(...) {...}
+    operator fun setValue(..., value:Type) {...}
+}
+class Foo {
+    var p: Type by Delegate() // by 키워드는 프로퍼티와 위임 객체를 연결한다. 
+}
+>>> val foo = Foo()
+>>> val oldValue = foo.p    // 내부적으로 delegate.getValue가 호출된다.
+>>> foo.p = newVale         // 내부적으로 delegate.setValue  
+```
+- Delegate 클래스를 단순화하면 위와 같다. 
+- foo.p는 일반 프로퍼티처럼 쓸 수 있고 일반 프로퍼티 같아 보인다. 
+  - 하지만 실제로 p의 게터나 세터는 Delegate 타입의 위임 프로퍼티 객체에 있는 메서드를 호출한다. 
+
+### 위임 프로퍼티 사용: by lazy()를 사용한 프로퍼티 초기화 지연 
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
